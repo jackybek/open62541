@@ -99,6 +99,21 @@ addPubSubConnection(UA_Server *server, char *addressUrl) {
     connectionOptions[connectionOptionIndex].key = UA_QUALIFIEDNAME(0, PASSWORD_OPTION_NAME);
     UA_String mqttPassword = UA_STRING(MQTT_PASSWORD);
     UA_Variant_setScalar(&connectionOptions[connectionOptionIndex++].value, &mqttPassword, &UA_TYPES[UA_TYPES_STRING]);
+
+    // preallocate sendBufferSize, otherwise it will crash during runtime
+    connectionOptions[connectionOptionIndex].key = UA_QUALIFIEDNAME(0, "sendBufferSize");
+    UA_UInt32 sendBufferSize = 32767;
+    UA_Variant_setScalar(&connectionOptions[connectionOptionsIndex].value, &sendBufferSize, &UA_TYPES[UA_TYPES_UINT32]);
+    connectionOptionsIndex++;
+
+    // preallocate recvBufferSize, otherwise it will crash during runtime
+    connectionOptions[connectionOptionIndex].key = UA_QUALIFIEDNAME(0, "revcBufferSize");
+    UA_Int32 recvBufferSize = 32767;
+    UA_Variant_setScalar(&connectionOptions[connectionOptionsIndex].value, &recvBufferSize, &UA_TYPES[UA_TYPES_UINT32]);
+    connectionOptionsIndex++;
+
+
+
 #endif
 
     connectionConfig.connectionProperties = connectionOptions;
