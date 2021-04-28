@@ -81,7 +81,7 @@ addPubSubConnection(UA_Server *server, char *addressUrl) {
 
     /* configure options, set mqtt client id */
 #ifdef EXAMPLE_USE_MQTT_LOGIN
-    UA_KeyValuePair connectionOptions[3];
+    UA_KeyValuePair connectionOptions[5];
 #else
     UA_KeyValuePair connectionOptions[1];
 #endif
@@ -99,6 +99,16 @@ addPubSubConnection(UA_Server *server, char *addressUrl) {
     connectionOptions[connectionOptionIndex].key = UA_QUALIFIEDNAME(0, PASSWORD_OPTION_NAME);
     UA_String mqttPassword = UA_STRING(MQTT_PASSWORD);
     UA_Variant_setScalar(&connectionOptions[connectionOptionIndex++].value, &mqttPassword, &UA_TYPES[UA_TYPES_STRING]);
+
+    // preallocate sendBufferSize
+    connectionOptions[connectionOptionsIndex].key = UA_QUALIFIEDNAME(0, "sendBufferSize");
+    UA_UInt32 sendBufferSize = 32767;
+    UA_Variant_setScalar(&connectionOptions[connectionOptionsIndex++].value, &sendBufferSize, &UA_TYPES[UA_TYPES_UINT32]);
+
+    // preallocate recvBufferSize
+    connectionOptions[connectionOptionsIndex].key = UA_QUALIFIEDNAME(0, "recvBufferSize");
+    UA_Int32 recvBufferSize = 32767;
+    UA_Variant_setScalar(&connectionOptions[connectionOptionsIndex++].value, &recvBufferSize, &UA_TYPES[UA_TYPES_UINT32]);
 #endif
 
     connectionConfig.connectionProperties = connectionOptions;
