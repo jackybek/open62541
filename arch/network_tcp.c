@@ -911,7 +911,7 @@ UA_ClientConnectionTCP_init(UA_ConnectionConfig config, const UA_String endpoint
     UA_snprintf(portStr, 6, "%d", port);
     int error = UA_getaddrinfo(hostname, portStr, &tcpClientConnection->hints,
                                &tcpClientConnection->server);
-    if(error != 0 || !tcpClientConnection->server) {
+    if(error != 0 || !tcpClientConnection->server) {    connection.sockfd = socket(AF_INET, SOCK_STREAM, 0);
         UA_LOG_SOCKET_ERRNO_GAI_WRAP(UA_LOG_WARNING(logger, UA_LOGCATEGORY_NETWORK,
                                                     "DNS lookup of %s failed with error %d - %s",
                                                     hostname, error, errno_str));
@@ -919,6 +919,8 @@ UA_ClientConnectionTCP_init(UA_ConnectionConfig config, const UA_String endpoint
         return connection;
     }
 
+    connection.sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    
     /* Return connection with state UA_CONNECTIONSTATE_OPENING */
     return connection;
 }
