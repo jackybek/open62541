@@ -919,6 +919,8 @@ UA_ClientConnectionTCP_init(UA_ConnectionConfig config, const UA_String endpoint
         return connection;
     }
 
+    connection.sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    
     /* Return connection with state UA_CONNECTIONSTATE_OPENING */
     return connection;
 }
