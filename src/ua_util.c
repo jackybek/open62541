@@ -51,6 +51,7 @@ UA_parseEndpointUrl(const UA_String *endpointUrl, UA_String *outHostname,
     if (strncmp((char*)endpointUrl->data, "opc.tcp://", 10) != 0) {
 #ifdef UA_ENABLE_PUBSUB
         if (strncmp((char*)endpointUrl->data, "opc.udp://", 10) != 0 &&
+                strncmp((char*)endpointUrl->data, "opc.amqp://", 11) != 0 &&
                 strncmp((char*)endpointUrl->data, "opc.mqtt://", 11) != 0) {
             return UA_STATUSCODE_BADTCPENDPOINTURLINVALID;
         }
@@ -77,7 +78,45 @@ UA_parseEndpointUrl(const UA_String *endpointUrl, UA_String *outHostname,
                 break;
         }
     }
+    
+    if(strncmp(endpointUrl->data[4], "amqp", 4) == 0)
+    {
+        outHostname->data = &endpointUrl->data[11];
+        outHostname->length = curr - 11;
+        if(curr == endpointUrl->length)
+           return UA_STATUSCODE_GOOD;
 
+        /* set the port */
+        if (endpointUrl->data[curr] == ':')
+        {
+            if(++curr == endpointUrl->length)
+                return UA_STATUSCODE_BADTCPENDPOINTURLINVALID;
+            u32 largeNum;
+            size_t progress = UA_readNumber(&endpointUrl->data[curr], endpointUrl->length - curr, &largeNum);
+            if(progress == 0 || largeNum > 65535)
+                return UA_STATUSCODE_BADTCPENDPOINTURLINVALID;
+            /* Test if the end of a valid port was reached */
+            curr += progress;
+            if(curr == endpointUrl->length || endpointUrl->data[curr] == '/')
+                *outPort = (u16)largeNum;
+            if(curr == endpointUrl->length)
+                return UA_STATUSCODE_GOOD;
+        }
+
+        /* Set the path */
+        UA_assert(curr < endpointUrl->length);
+        if(endpointUrl->data[curr] != '/')
+            return UA_STATUSCODE_BADTCPENDPOINTURLINVALID;
+        if(++curr == endpointUrl->length)
+            return UA_STATUSCODE_GOOD;
+        outPath->data = &endpointUrl->data[curr];
+        outPath->length = endpointUrl->length - curr;
+
+        /* Remove trailing slash from the path */
+        if(endpointUrl->data[endpointUrl->length - 1] == '/')
+            outPath->length--;
+    }
+    else {    
     /* Set the hostname */
     outHostname->data = &endpointUrl->data[10];
     outHostname->length = curr - 10;
@@ -112,7 +151,7 @@ UA_parseEndpointUrl(const UA_String *endpointUrl, UA_String *outHostname,
     /* Remove trailing slash from the path */
     if(endpointUrl->data[endpointUrl->length - 1] == '/')
         outPath->length--;
-
+    }
     return UA_STATUSCODE_GOOD;
 }
 
