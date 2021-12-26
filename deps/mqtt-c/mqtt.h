@@ -1436,6 +1436,13 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
                              size_t will_message_size,
                              const char* user_name,
                              const char* password,
+                #ifdef UA_ENABLE_MQTT_TLS_OPENSSL
+                             const char* caFilePath,
+                             const char* caPath,
+                             const char* clientCertPath,
+                             const char* clientKeyPath,
+                             bool useTLS,
+                #endif
                              uint8_t connect_flags,
                              uint16_t keep_alive);
 
