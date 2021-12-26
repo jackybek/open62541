@@ -1083,6 +1083,11 @@ struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQT
  *
  * @note All members can be manipulated via the related functions.
  */
+
+#ifdef UA_ENABLE_MQTT_TLS
+#include <openssl/ssl.h>
+#endif
+
 struct mqtt_client {
     /** @brief The socket connecting to the MQTT broker. */
     mqtt_pal_socket_handle socketfd;
@@ -1226,6 +1231,33 @@ struct mqtt_client {
 
     /** @brief The sending message queue. */
     struct mqtt_message_queue mq;
+    
+    // added to handle situation when __mqtt_send() fails
+        //struct my_custom_socket_handle *handle;
+        UA_NetworkAddressUrlDataType mqttAddress;
+        UA_String hostname;
+        UA_String path;
+        UA_UInt16 networkPort;
+
+        UA_Connection *connection;
+        uint8_t *mqttSendBuffer;
+        UA_UInt32 mqttSendBufferSize;
+        uint8_t *mqttRecvBuffer;
+        UA_UInt32 mqttRecvBufferSize;
+        UA_PubSubChannel* channel;
+        char* clientId;
+        char* username;
+        char* password;
+     #ifdef UA_ENABLE_MQTT_TLS_OPENSSL
+        char* caFilePath;
+        char* caPath;
+        char* clientCertPath;
+        char* clientKeyPath;
+        bool useTLS;
+        int sockfd;
+        SSL *ssl;
+     #endif
+   // end : added to handle situation when __mqtt_send() fails
 };
 
 /**
