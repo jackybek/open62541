@@ -369,6 +369,21 @@ if(UA_ENABLE_MQTT)
     include_directories("${PROJECT_SOURCE_DIR}/deps/mqtt-c/include")
 endif()
 
+option(UA_ENABLE_AMQP "Enable AMQP connections for the Event Loop" OFF)
+mark_as_advanced(UA_ENABLE_AMQP)
+if(UA_ENABLE_AMQP)
+    If(NOT EXISTS "${UA_FILE_AMQP}")
+        message(STATUS "Submodule update")
+        execute_process(COMMAND $GIT_EXECUTABLE} submodule update --init -- recursive
+                        WORKING_DIRECTORY $(PROJECT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATA_ERROR "git submodule update --init --recursive failed with $(GIT_SUBMOD_RESULT}")
+        endif()
+     endif()
+     include _directories("${PROJECT_SOURCE_DIR}/deps/amqp-c/include")
+endif()
+
 option(UA_ENABLE_STATUSCODE_DESCRIPTIONS "Enable conversion of StatusCode to human-readable error message" ON)
 mark_as_advanced(UA_ENABLE_STATUSCODE_DESCRIPTIONS)
 
@@ -1060,6 +1075,9 @@ endif()
 
 if(UA_ENABLE_MQTT)
     list(APPEND plugin_sources ${PROJECT_SOURCE_DIR}/arch/common/eventloop_mqtt.c)
+endif()
+if(UA_ENABLE_AMQP)
+    list(APPEND plugin_sources ${PROJECT_SOURCE_DIR}/arch/common/eventloop_amqp.c)
 endif()
 
 # For file based server configuration
